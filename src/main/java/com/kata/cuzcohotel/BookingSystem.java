@@ -19,7 +19,7 @@ public class BookingSystem {
                 reservations.stream().filter(reservation -> !isAvailable(reservation, checkinDate, checkoutDate))
                 .map(reservation -> reservation.room).collect(Collectors.toList());
         return  rooms.stream()
-                .filter(r -> !bookedRoomsAtThoseDates.stream().anyMatch(bookedRoomAtThoseDates -> bookedRoomAtThoseDates == r))
+                .filter(r -> bookedRoomsAtThoseDates.stream().noneMatch(bookedRoomAtThoseDates -> bookedRoomAtThoseDates == r))
                 .collect(Collectors.toList());
     }
 
