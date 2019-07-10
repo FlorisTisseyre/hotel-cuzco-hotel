@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class BookingSystem {
     private List<Room> rooms = new ArrayList<>();
@@ -14,14 +15,12 @@ public class BookingSystem {
     }
 
     public List<Room> findAvailableRooms(Calendar checkinDate, Calendar checkoutDate) {
-        return rooms.stream().filter(room ->
-                isRoomAvailable(checkinDate, checkoutDate, room)).collect(Collectors.toList());
-    }
-
-    private boolean isRoomAvailable(Calendar checkinDate, Calendar checkoutDate, Room room) {
-        return !reservations.stream().anyMatch(reservation ->
-                reservation.room == room && !isAvailable(reservation, checkinDate, checkoutDate)
-        );
+        List<Room> bookedRoomsAtThoseDates =
+                reservations.stream().filter(reservation -> !isAvailable(reservation, checkinDate, checkoutDate))
+                .map(reservation -> reservation.room).collect(Collectors.toList());
+        return  rooms.stream()
+                .filter(r -> !bookedRoomsAtThoseDates.stream().anyMatch(bookedRoomAtThoseDates -> bookedRoomAtThoseDates == r))
+                .collect(Collectors.toList());
     }
 
     private boolean isAvailable(Reservation reservation, Calendar checkinDate, Calendar checkoutDate) {
@@ -29,8 +28,8 @@ public class BookingSystem {
                 || checkoutDate.equals(reservation.checkinDate)
                 || checkinDate.after(reservation.checkoutDate)
                 || checkinDate.equals(reservation.checkoutDate));
-
     }
+
 
     public void makeAReservation(Calendar checkinDate, Calendar checkoutDate, int roomNumber) {
         reservations.add(new Reservation(checkinDate, checkoutDate, findRoom(roomNumber)));

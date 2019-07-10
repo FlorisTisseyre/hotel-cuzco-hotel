@@ -1,8 +1,5 @@
 package com.kata.cuzcohotel;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-
 public class Room {
     private int roomNumber;
 
