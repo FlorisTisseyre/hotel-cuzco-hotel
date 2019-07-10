@@ -15,12 +15,20 @@ public class BookingSystem {
     }
 
     public List<Room> findAvailableRooms(Calendar checkinDate, Calendar checkoutDate) {
-        List<Room> bookedRoomsAtThoseDates =
-                reservations.stream().filter(reservation -> !isAvailable(reservation, checkinDate, checkoutDate))
-                .map(reservation -> reservation.room).collect(Collectors.toList());
-        return  rooms.stream()
-                .filter(r -> bookedRoomsAtThoseDates.stream().noneMatch(bookedRoomAtThoseDates -> bookedRoomAtThoseDates == r))
+        List<Room> bookedRooms = findBookedRooms(checkinDate, checkoutDate);
+        return rooms.stream()
+                .filter(room -> {
+                    return bookedRooms
+                            .stream()
+                            .noneMatch(bookedRoomAtThoseDates -> bookedRoomAtThoseDates == room);
+                })
                 .collect(Collectors.toList());
+    }
+
+    private List<Room> findBookedRooms(Calendar checkinDate, Calendar checkoutDate) {
+        return reservations.stream()
+                .filter(reservation -> !isAvailable(reservation, checkinDate, checkoutDate))
+                .map(reservation -> reservation.room).collect(Collectors.toList());
     }
 
     private boolean isAvailable(Reservation reservation, Calendar checkinDate, Calendar checkoutDate) {
