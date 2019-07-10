@@ -1,16 +1,19 @@
 package com.kata.cuzcohotel;
 
+import com.kata.cuzcohotel.repository.Repository;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class BookingSystem {
-    private List<Room> rooms = new ArrayList<>();
-    private List<Reservation> reservations = new ArrayList<>();
+    private final List<Room> rooms;
+    private Repository<Booking> repository;
 
-    public BookingSystem(List<Room> rooms) {
+    public BookingSystem(List<Room> rooms, Repository<Booking> repository) {
         this.rooms = rooms;
+        this.repository = repository;
     }
 
     public List<Room> findAvailableRooms(Calendar checkinDate, Calendar checkoutDate) {
@@ -19,20 +22,20 @@ public class BookingSystem {
     }
 
     private List<Room> findBookedRooms(Calendar checkinDate, Calendar checkoutDate) {
-        return reservations.stream()
-                .filter(reservation -> !isAvailable(reservation, checkinDate, checkoutDate))
-                .map(reservation -> reservation.room).collect(Collectors.toList());
+        return repository.getAll().stream()
+                .filter(booking -> !isAvailable(booking, checkinDate, checkoutDate))
+                .map(booking -> booking.getRoom()).collect(Collectors.toList());
     }
 
-    private boolean isAvailable(Reservation reservation, Calendar checkinDate, Calendar checkoutDate) {
-        return (checkoutDate.before(reservation.checkinDate)
-                || checkoutDate.equals(reservation.checkinDate)
-                || checkinDate.after(reservation.checkoutDate)
-                || checkinDate.equals(reservation.checkoutDate));
+    private boolean isAvailable(Booking booking, Calendar checkinDate, Calendar checkoutDate) {
+        return (checkoutDate.before(booking.getCheckinDate())
+                || checkoutDate.equals(booking.getCheckinDate())
+                || checkinDate.after(booking.getCheckoutDate())
+                || checkinDate.equals(booking.getCheckoutDate()));
     }
 
     public void makeAReservation(Calendar checkinDate, Calendar checkoutDate, int roomNumber) {
-        reservations.add(new Reservation(checkinDate, checkoutDate, findRoom(roomNumber)));
+        repository.save(new Booking(checkinDate, checkoutDate, findRoom(roomNumber)));
     }
 
     private Room findRoom(int roomNumber) {

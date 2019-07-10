@@ -1,5 +1,6 @@
 package com.kata.cuzcohotel;
 
+import com.kata.cuzcohotel.repository.InMemoryRepository;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -17,29 +18,37 @@ public class BookingSystemTest {
     Calendar FOURTH_DAY = new GregorianCalendar(2019, 07, 04);
 
 
+    private BookingSystem buildOneRoomBookingSystem() {
+        return new BookingSystem(Arrays.asList(new Room(101)), new InMemoryRepository<>());
+    }
+
+    private BookingSystem buildTwoRoomsBookingSystem() {
+        return new BookingSystem(Arrays.asList(new Room(101), new Room(102)), new InMemoryRepository<>());
+    }
+
     @Test
     public void shouldReturnAllRoomsWhenNoBooking() {
-        BookingSystem sut = new BookingSystem(Arrays.asList(new Room(101)));
+        BookingSystem sut = buildOneRoomBookingSystem();
         assertEquals(sut.findAvailableRooms(FIRST_DAY, SECOND_DAY).size(), 1);
     }
 
     @Test
     public void shouldReturnNoRoomsWhenAllIsBooked() {
-        BookingSystem sut = new BookingSystem(Arrays.asList(new Room(101)));
+        BookingSystem sut = buildOneRoomBookingSystem();
         sut.makeAReservation(FIRST_DAY, SECOND_DAY, 101);
         assertEquals(sut.findAvailableRooms(FIRST_DAY, SECOND_DAY).size(), 0);
     }
 
     @Test
     public void shouldReturnOneRoomLessWhen1HasBeenBooked() {
-        BookingSystem sut = new BookingSystem(Arrays.asList(new Room(101), new Room(102)));
+        BookingSystem sut = buildTwoRoomsBookingSystem();
         sut.makeAReservation(FIRST_DAY, SECOND_DAY, 101);
         assertEquals(sut.findAvailableRooms(FIRST_DAY, SECOND_DAY).size(), 1);
     }
 
     @Test
     public void shouldReturnAvailableTodayIfBookedTomorrow() {
-        BookingSystem sut = new BookingSystem(Arrays.asList(new Room(101)));
+        BookingSystem sut = buildOneRoomBookingSystem();
         sut.makeAReservation(SECOND_DAY, THIRD_DAY, 101);
 
         assertEquals(sut.findAvailableRooms(FIRST_DAY, SECOND_DAY).size(), 1);
@@ -50,13 +59,13 @@ public class BookingSystemTest {
     }
     @Test
     public void shouldReturnAvailableIfNoBooking() {
-        BookingSystem sut = new BookingSystem(Arrays.asList(new Room(101)));
+        BookingSystem sut = buildOneRoomBookingSystem();
         assertEquals(sut.findAvailableRooms(FIRST_DAY, SECOND_DAY).size(), 1);
     }
 
     @Test
     public void shouldBeAvailableBetweenTwoBookings(){
-        BookingSystem sut = new BookingSystem(Arrays.asList(new Room(101)));
+        BookingSystem sut = buildOneRoomBookingSystem();
         sut.makeAReservation(FIRST_DAY, SECOND_DAY,101);
         sut.makeAReservation(THIRD_DAY, FOURTH_DAY,101);
 
@@ -64,5 +73,4 @@ public class BookingSystemTest {
         assertEquals(0, sut.findAvailableRooms(FIRST_DAY, SECOND_DAY).size());
         assertEquals(0, sut.findAvailableRooms(THIRD_DAY, FOURTH_DAY).size());
     }
-
 }
