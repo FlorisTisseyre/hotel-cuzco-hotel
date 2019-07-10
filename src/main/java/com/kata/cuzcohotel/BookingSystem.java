@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class BookingSystem {
     private List<Room> rooms = new ArrayList<>();
@@ -16,13 +15,7 @@ public class BookingSystem {
 
     public List<Room> findAvailableRooms(Calendar checkinDate, Calendar checkoutDate) {
         List<Room> bookedRooms = findBookedRooms(checkinDate, checkoutDate);
-        return rooms.stream()
-                .filter(room -> {
-                    return bookedRooms
-                            .stream()
-                            .noneMatch(bookedRoomAtThoseDates -> bookedRoomAtThoseDates == room);
-                })
-                .collect(Collectors.toList());
+        return ListUtils.substract(rooms, bookedRooms);
     }
 
     private List<Room> findBookedRooms(Calendar checkinDate, Calendar checkoutDate) {
@@ -37,7 +30,6 @@ public class BookingSystem {
                 || checkinDate.after(reservation.checkoutDate)
                 || checkinDate.equals(reservation.checkoutDate));
     }
-
 
     public void makeAReservation(Calendar checkinDate, Calendar checkoutDate, int roomNumber) {
         reservations.add(new Reservation(checkinDate, checkoutDate, findRoom(roomNumber)));
